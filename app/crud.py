@@ -1,53 +1,98 @@
 from typing import List, Optional
-from sqlmodel import Session, select, desc
-from app import models, schemas
+from datetime import date
+
+from sqlalchemy.orm import Session
+from sqlmodel import select
+
+from . import models, schemas
+
+def create_exercise(db: Session, exercise: schemas.ExerciseCreate) -> models.Exercise:
+    db_exercise = models.Exercise(name=exercise.name)
+    db.add(db_exercise)
+    db.commit()
+    db.refresh(db_exercise)
+    return db_exercise
 
 
-# Exercises
-def create_exercise(session: Session, exercise_in: schemas.ExerciseCreate) -> models.Exercise:
-    exercise = models.Exercise(name=exercise_in.name)
-    session.add(exercise)
-    session.commit()
-    session.refresh(exercise)
-    return exercise
+def get_exercise(db: Session, exercise_id: int) -> Optional[models.Exercise]:
+    return db.get(models.Exercise, exercise_id)
 
 
-def get_exercise_by_id(session: Session, exercise_id: int) -> Optional[models.Exercise]:
-    return session.get(models.Exercise, exercise_id)
+def get_exercises(db: Session, skip: int = 0, limit: int = 100) -> List[models.Exercise]:
+    return db.exec(select(models.Exercise).offset(skip).limit(limit)).all()
 
 
-def get_exercises(session: Session) -> List[models.Exercise]:
-    statement = select(models.Exercise).order_by(models.Exercise.name)
-    return list(session.exec(statement).all())
+def create_workout(db: Session, workout: schemas.WorkoutCreate) -> models.Workout:
+    workout_date = workout.date or date.today()
+    db_workout = models.Workout(date=workout_date)
+    db.add(db_workout)
+    db.commit()
+    db.refresh(db_workout)
+    return db_workout
 
 
-# Workouts
-def create_workout(session: Session, workout_in: schemas.WorkoutCreate) -> models.Workout:
-    workout = models.Workout(date=workout_in.date)
-    session.add(workout)
-    session.commit()
-    session.refresh(workout)
+#workout
 
-    for set_in in workout_in.sets:
-        set_obj = models.Set(
-            workout_id=workout.id,
-            exercise_id=set_in.exercise_id,
-            reps=set_in.reps,
-            weight=set_in.weight,
-            unit=set_in.unit,
-            set_number=set_in.set_number,
-        )
-        session.add(set_obj)
-
-    session.commit()
-    session.refresh(workout)
-    return workout
+def get_workout(db: Session, workout_id: int) -> Optional[models.Workout]:
+    return db.get(models.Workout, workout_id)
 
 
-def get_workout_by_id(session: Session, workout_id: int) -> Optional[models.Workout]:
-    return session.get(models.Workout, workout_id)
+def get_workout_by_date(db: Session, workout_date: date) -> Optional[models.Workout]:
+    return db.exec(select(models.Workout).where(models.Workout.date == workout_date)).first()
 
 
-def get_workouts(session: Session) -> List[models.Workout]:
-    statement = select(models.Workout).order_by(desc(models.Workout.date))
-    return list(session.exec(statement).all())
+def get_workouts(db: Session, skip: int = 0, limit: int = 100) -> List[models.Workout]:
+    return db.exec(select(models.Workout).offset(skip).limit(limit)).all()
+
+
+# sets
+
+
+def create_set(db: Session, set_in: schemas.SetCreate) -> models.Set:
+    # Determine the date for the workout
+    workout_date = set_in.date or date.today()
+
+    # Check if a workout exists for that date
+    workout = get_workout_by_date(db, workout_date)
+    if not workout:
+        # Create a new workout for that date
+        workout = models.Workout(date=workout_date)
+        db.add(workout)
+        db.commit()
+        db.refresh(workout)
+
+    # Create the set attached to the workout
+    db_set = models.Set(
+        workout_id=workout.id,
+        exercise_id=set_in.exercise_id,
+        reps=set_in.reps,
+        weight=set_in.weight,
+        unit=set_in.unit,
+        date=workout_date
+    )
+
+    db.add(db_set)
+    db.commit()
+    db.refresh(db_set)
+    return db_set
+
+
+def get_set(db: Session, set_id: int) -> Optional[models.Set]:
+    return db.get(models.Set, set_id)
+
+
+def get_sets_by_workout(db: Session, workout_id: int) -> List[models.Set]:
+    return db.exec(select(models.Set).where(models.Set.workout_id == workout_id)).all()
+
+
+def get_sets_by_exercise(db: Session, exercise_id: int) -> List[models.Set]:
+    return db.exec(select(models.Set).where(models.Set.exercise_id == exercise_id)).all()
+
+
+def delete_set(db: Session, set_id: int) -> bool:
+    db_set = get_set(db, set_id)
+    if not db_set:
+        return False
+    db.delete(db_set)
+    db.commit()
+    return True

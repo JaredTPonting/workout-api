@@ -1,26 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 from typing import List
 
-from app import crud, models, schemas
-from app.database import get_session
+from .. import crud, schemas, database
 
-router = APIRouter(prefix="/exercises", tags=["exercises"])
-
-
-@router.get("/", response_model=List[schemas.ExerciseRead])
-def read_exercises(session: Session = Depends(get_session)):
-    return crud.get_exercises(session)
-
-
-@router.get("/{exercise_id}", response_model=schemas.ExerciseRead)
-def read_exercise(exercise_id: int, session: Session = Depends(get_session)):
-    exercise = crud.get_exercise_by_id(session, exercise_id)
-    if not exercise:
-        raise HTTPException(status_code=404, detail="Exercise not found")
-    return exercise
+router = APIRouter(prefix="/exercises", tags=["Exercises"])
 
 
 @router.post("/", response_model=schemas.ExerciseRead)
-def create_exercise(exercise_in: schemas.ExerciseCreate, session: Session = Depends(get_session)):
-    return crud.create_exercise(session, exercise_in)
+def create_exercise(exercise: schemas.ExerciseCreate, db: Session = Depends(database.get_session)):
+    db_exercise = crud.create_exercise(db, exercise)
+    return db_exercise
+
+
+@router.get("/", response_model=List[schemas.ExerciseRead])
+def list_exercises(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_session)):
+    return crud.get_exercises(db, skip=skip, limit=limit)
+
+
+@router.get("/{exercise_id}", response_model=schemas.ExerciseRead)
+def get_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
+    db_exercise = crud.get_exercise(db, exercise_id)
+    if not db_exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+    return db_exercise

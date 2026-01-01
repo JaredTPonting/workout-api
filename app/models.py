@@ -2,9 +2,8 @@ import datetime
 from enum import Enum
 from typing import Optional, List
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy.orm import Mapped
-
 
 
 class WeightUnit(str, Enum):
@@ -26,7 +25,7 @@ class Workout(SQLModel, table=True):
     __tablename__ = "workouts"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    date: datetime.date = Field(default_factory=datetime.date.today, index=True)
+    date: datetime.date = Field(index=True)
 
     # Relationship
     sets: Mapped[List["Set"]] = Relationship(back_populates="workout")
@@ -38,12 +37,12 @@ class Set(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     workout_id: int = Field(foreign_key="workouts.id", index=True)
     exercise_id: int = Field(foreign_key="exercises.id", index=True)
-
     reps: int
     weight: float
     unit: WeightUnit
-    set_number: int
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow, index=True)
 
     # Relationships
     workout: Mapped["Workout"] = Relationship(back_populates="sets")
     exercise: Mapped["Exercise"] = Relationship(back_populates="sets")
+

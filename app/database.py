@@ -1,12 +1,16 @@
 from typing import Generator
-import os
-from sqlmodel import SQLModel, Session, create_engine
 
-# Render (and others) might provide 'postgres://' which SQLAlchemy 2.0+ doesn't support.
-# We need to replace it with 'postgresql://'
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/workout")
+from sqlmodel import SQLModel, create_engine, Session
+import os
+
+# Get DB URL
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+
+
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 engine = create_engine(DATABASE_URL, echo=True)
 

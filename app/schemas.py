@@ -1,53 +1,52 @@
-from __future__ import annotations
-from datetime import date
-from typing import List, Optional
-
-from pydantic import BaseModel, ConfigDict
-from app.models import WeightUnit
+import datetime
+from typing import Optional, List
+from pydantic import BaseModel
+from .models import WeightUnit
 
 
-# Exercise Schemas
-class ExerciseBase(BaseModel):
+# Exercise
+class ExerciseCreate(BaseModel):
     name: str
 
 
-class ExerciseCreate(ExerciseBase):
-    pass
-
-
-class ExerciseRead(ExerciseBase):
+class ExerciseRead(BaseModel):
     id: int
-    model_config = ConfigDict(from_attributes=True)
+    name: str
+
+    class Config:
+        orm_mode = True
 
 
-# Set Schemas
-class SetBase(BaseModel):
+# Workout
+class WorkoutCreate(BaseModel):
+    date: Optional[datetime.date] = None
+
+
+class WorkoutRead(BaseModel):
+    id: int
+    date: datetime.date
+
+    class Config:
+        orm_mode = True
+
+
+# Set
+class SetCreate(BaseModel):
+    exercise_id: int
     reps: int
     weight: float
     unit: WeightUnit
-    set_number: int
+    date: Optional[datetime.date] = None
 
 
-class SetCreate(SetBase):
+class SetRead(BaseModel):
+    id: int
+    workout_id: int
     exercise_id: int
+    reps: int
+    weight: float
+    unit: WeightUnit
+    created_at: datetime.datetime
 
-
-class SetRead(SetBase):
-    id: int
-    exercise: ExerciseRead
-    model_config = ConfigDict(from_attributes=True)
-
-
-# Workout Schemas
-class WorkoutBase(BaseModel):
-    date: Optional[date] = None
-
-
-class WorkoutCreate(WorkoutBase):
-    sets: List[SetCreate]
-
-
-class WorkoutRead(WorkoutBase):
-    id: int
-    sets: List[SetRead]
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True

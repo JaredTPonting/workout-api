@@ -9,8 +9,6 @@ services:
         fromDatabase:
           name: workout-db
           property: connectionString
-      - key: ALLOWED_ORIGINS
-        value: "" # Add your frontend URL here !!!!! TODO
       - key: PYTHON_VERSION
         value: 3.11.0
 
@@ -18,4 +16,4 @@ databases:
   - name: workout-db
     databaseName: workout
     user: workout_user
-    plan: free # Optional: specify plan
+    plan: free
