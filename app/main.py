@@ -2,9 +2,13 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from dotenv import load_dotenv
+
 from app.routers import exercises, workouts, sets
 from app.database import engine
 from app import models
+
+load_dotenv()
 
 models.SQLModel.metadata.create_all(engine)
 

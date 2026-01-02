@@ -3,11 +3,12 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from .. import crud, schemas, database
+from ..security import require_api_key
 
 router = APIRouter(prefix="/exercises", tags=["Exercises"])
 
 
-@router.post("/", response_model=schemas.ExerciseRead)
+@router.post("/", response_model=schemas.ExerciseRead, dependencies=[Depends(require_api_key)])
 def create_exercise(exercise: schemas.ExerciseCreate, db: Session = Depends(database.get_session)):
     db_exercise = crud.create_exercise(db, exercise)
     return db_exercise

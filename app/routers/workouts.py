@@ -4,11 +4,12 @@ from typing import List
 from datetime import date
 
 from .. import crud, schemas, database
+from ..security import require_api_key
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
 
 
-@router.post("/", response_model=schemas.WorkoutRead)
+@router.post("/", response_model=schemas.WorkoutRead, dependencies=[Depends(require_api_key)])
 def create_workout(workout: schemas.WorkoutCreate, db: Session = Depends(database.get_session)):
     db_workout = crud.create_workout(db, workout)
     return db_workout
