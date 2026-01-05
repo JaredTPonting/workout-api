@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import date
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlmodel import select
 
@@ -20,6 +21,15 @@ def get_exercise(db: Session, exercise_id: int) -> Optional[models.Exercise]:
 
 def get_exercises(db: Session, skip: int = 0, limit: int = 100) -> List[models.Exercise]:
     return db.exec(select(models.Exercise).offset(skip).limit(limit)).all()
+
+def delete_exercise(db: Session, exercise_id: int) -> None:
+    exercise = get_exercise(db, exercise_id)
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    db.delete(exercise)
+    db.commit()
+
 
 
 def create_workout(db: Session, workout: schemas.WorkoutCreate) -> models.Workout:
@@ -92,7 +102,8 @@ def get_sets_by_exercise(db: Session, exercise_id: int) -> List[models.Set]:
 def delete_set(db: Session, set_id: int) -> bool:
     db_set = get_set(db, set_id)
     if not db_set:
-        return False
+        raise HTTPException(status_code=404, detail="Set not found")
     db.delete(db_set)
     db.commit()
     return True
+

@@ -18,7 +18,7 @@ class Exercise(SQLModel, table=True):
     name: str = Field(index=True, unique=True)
 
     # Relationship
-    sets: Mapped[List["Set"]] = Relationship(back_populates="exercise")
+    sets: Mapped[List["Set"]] = Relationship(back_populates="exercise", sa_relationship_kwargs={"cascade": "all, delete"})
 
 
 class Workout(SQLModel, table=True):
@@ -28,7 +28,7 @@ class Workout(SQLModel, table=True):
     date: datetime.date = Field(index=True)
 
     # Relationship
-    sets: Mapped[List["Set"]] = Relationship(back_populates="workout")
+    sets: Mapped[List["Set"]] = Relationship(back_populates="workout", sa_relationship_kwargs={"cascade": "all, delete"})
 
 
 class Set(SQLModel, table=True):

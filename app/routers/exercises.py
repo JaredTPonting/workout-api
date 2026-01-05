@@ -25,3 +25,7 @@ def get_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
     if not db_exercise:
         raise HTTPException(status_code=404, detail="Exercise not found")
     return db_exercise
+
+@router.delete("/{exercise_id}", status_code=204, dependencies=[Depends(require_api_key)])
+def delete_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
+    crud.delete_exercise(db, exercise_id)
