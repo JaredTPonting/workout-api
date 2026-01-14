@@ -29,3 +29,8 @@ def get_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
 @router.delete("/{exercise_id}", status_code=204, dependencies=[Depends(require_api_key)])
 def delete_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
     crud.delete_exercise(db, exercise_id)
+
+
+@router.put("/{exercise_id}", response_model=schemas.ExerciseRead)
+def put_exercise(exercise_id: int, exercise_update: schemas.ExerciseUpdate, db: Session = Depends(database.get_session)):
+    return crud.update_exercise(db, exercise_id, exercise_update)

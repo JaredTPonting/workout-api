@@ -30,6 +30,19 @@ def delete_exercise(db: Session, exercise_id: int) -> None:
     db.delete(exercise)
     db.commit()
 
+def update_exercise(db: Session, exercise_id: int, exercise_update: schemas.ExerciseUpdate) -> models.Exercise:
+    exercise = get_exercise(db, exercise_id)
+
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    exercise.name = exercise_update.name
+    db.add(exercise)
+    db.commit()
+    db.refresh(exercise)
+
+    return exercise
+
 
 
 def create_workout(db: Session, workout: schemas.WorkoutCreate) -> models.Workout:

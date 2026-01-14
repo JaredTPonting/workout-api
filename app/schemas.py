@@ -17,6 +17,10 @@ class ExerciseRead(BaseModel):
         orm_mode = True
 
 
+class ExerciseUpdate(BaseModel):
+    name: str
+
+
 # Workout
 class WorkoutCreate(BaseModel):
     date: Optional[datetime.date] = None
