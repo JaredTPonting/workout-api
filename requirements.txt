@@ -6,9 +6,13 @@ psycopg2-binary==2.9.11
 alembic==1.17.2
 python-dotenv==1.2.1
 python-jose[cryptography]
-passlib[bcrypt]
-bcrypt
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 python-multipart
 
 pytest==9.0.2
 httpx==0.28.1
+
+python-jose
+passlib
+python-multipart

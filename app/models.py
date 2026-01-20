@@ -5,6 +5,15 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy.orm import Mapped
 
+## User
+
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str
+    hashed_password: str
+
+## data
+
 
 class WeightUnit(str, Enum):
     KG = "kg"

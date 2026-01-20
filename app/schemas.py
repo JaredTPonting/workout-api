@@ -3,6 +3,17 @@ from typing import Optional, List
 from pydantic import BaseModel
 from .models import WeightUnit
 
+# User
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+
 
 # Exercise
 class ExerciseCreate(BaseModel):
