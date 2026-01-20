@@ -5,12 +5,11 @@ from typing import List
 from .. import crud, schemas, database
 from ..auth import get_current_user
 from ..models import User
-from ..security import require_api_key
 
 router = APIRouter(prefix="/exercises", tags=["Exercises"])
 
 
-@router.post("/", response_model=schemas.ExerciseRead, dependencies=[Depends(require_api_key)])
+@router.post("/", response_model=schemas.ExerciseRead)
 def create_exercise(exercise: schemas.ExerciseCreate, user: User = Depends(get_current_user), db: Session = Depends(database.get_session)):
     db_exercise = crud.create_exercise(db, exercise)
     return db_exercise
@@ -28,7 +27,8 @@ def get_exercise(exercise_id: int, db: Session = Depends(database.get_session)):
         raise HTTPException(status_code=404, detail="Exercise not found")
     return db_exercise
 
-@router.delete("/{exercise_id}", status_code=204, dependencies=[Depends(require_api_key)])
+
+@router.delete("/{exercise_id}", status_code=204)
 def delete_exercise(exercise_id: int, user: User = Depends(get_current_user), db: Session = Depends(database.get_session)):
     crud.delete_exercise(db, exercise_id)
 

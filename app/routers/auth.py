@@ -14,7 +14,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         select(User).where(User.username == form_data.username)
     ).first()
 
-    if not user or not verify_password(form_data.password, user.password):
+    if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid Credentials")
 
     token = create_access_token({"sub": user.username})
