@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
 
-from app.routers import exercises, workouts, sets
+from app.routers import exercises, workouts, sets, auth
 from app.database import engine
 from app import models
 
@@ -27,6 +27,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(exercises.router)
 app.include_router(workouts.router)
 app.include_router(sets.router)

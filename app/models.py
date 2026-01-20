@@ -6,6 +6,17 @@ from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy.orm import Mapped
 
 
+class User(SQLModel, table=True):
+    __tablename__ = "users"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    email: str = Field(index=True, unique=True)
+    hashed_password: str
+    is_active: bool = Field(default=True)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+
+
 class WeightUnit(str, Enum):
     KG = "kg"
     LBS = "lbs"
